@@ -70,6 +70,16 @@ class MigrationCommand extends Command {
             $this->line('');
         }
     }
+    
+    /**
+     * Alias fire method.
+     *
+     * @return void
+     */
+    public function handle()
+    {
+        $this->fire();
+    }
 
     /**
      * Get the console command options.
