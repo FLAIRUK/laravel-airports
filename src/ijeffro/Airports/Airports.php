@@ -40,7 +40,7 @@ class Airports extends Model {
     protected function getAirports()
     {
         //Get the airports from the JSON file
-        if (sizeof($this->airports) == 0){
+        if (is_null($this->airports) || count($this->airports) <= 0) {
             $this->airports = json_decode(file_get_contents(__DIR__ . '/Models/airports.json'), true);
         }
 
