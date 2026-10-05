@@ -5,18 +5,33 @@
   </picture>
 </p>
 
-[![Tests](https://github.com/FLAIRUK/laravel-airports/actions/workflows/tests.yml/badge.svg)](https://github.com/FLAIRUK/laravel-airports/actions/workflows/tests.yml)
-[![Latest Stable Version](https://poser.pugx.org/ijeffro/laravel-airports/v/stable)](https://packagist.org/packages/ijeffro/laravel-airports)
-[![License](https://poser.pugx.org/ijeffro/laravel-airports/license)](https://packagist.org/packages/ijeffro/laravel-airports)
+<h2 align="center">
+  <a href="https://www.php.net/" target="_blank"><img src="https://img.shields.io/badge/PHP-8.2%2B-777BB4?style=flat&logo=php&logoColor=white" alt="PHP 8.2+"></a>&nbsp;
+  <a href="https://laravel.com/docs/" target="_blank"><img src="https://img.shields.io/badge/Laravel-12%20%7C%2013-FF2D20?style=flat&logo=laravel&logoColor=white" alt="Laravel 12 or 13"></a>&nbsp;
+  <a href="https://github.com/FLAIRUK/laravel-airports/actions/workflows/tests.yml" target="_blank"><img src="https://img.shields.io/github/actions/workflow/status/FLAIRUK/laravel-airports/tests.yml?branch=master&style=flat&logo=githubactions&logoColor=white&label=Tests" alt="Tests"></a>&nbsp;
+  <a href="https://packagist.org/packages/ijeffro/laravel-airports" target="_blank"><img src="https://img.shields.io/packagist/dt/ijeffro/laravel-airports?style=flat&logo=packagist&logoColor=white&label=Downloads&color=F28D1A" alt="Downloads on Packagist"></a>&nbsp;
+  <a href="https://github.com/FLAIRUK/laravel-airports/blob/master/LICENSE" target="_blank"><img src="https://img.shields.io/github/license/FLAIRUK/laravel-airports?style=flat&label=License&color=3DA639" alt="MIT licence"></a>&nbsp;
+  <a href="https://www.iata.org/en/publications/directories/code-search/" target="_blank"><img src="https://img.shields.io/badge/Data-IATA-EA580C?style=flat" alt="IATA"></a>&nbsp;
+  <br>&nbsp;
+</h2>
 
-Over 10,000 IATA airport codes (`LHR`, `JFK`, `DXB`, …) for Laravel 12 and 13.
+**Laravel Airports** — Over 10,000 IATA airport codes (`LHR`, `JFK`, `DXB`, …) for Laravel 12 and 13.
 
 - **No database required.** Look airports up through a facade backed by an in-memory dataset.
 - **Typed results.** Every lookup returns readonly `Airport` objects in Laravel collections keyed by code.
 - **Validation rule.** `new AirportCode` accepts known codes only.
 - **Optional table.** Publish a migration and seed an `airports` table when other tables need to reference airports.
 
-## Installation
+<p align="center">
+  📦&nbsp;<a href="#-installation">Installation</a> ·
+  🚀&nbsp;<a href="#-usage">Usage</a> ·
+  💾&nbsp;<a href="#-database-table-optional">Database table</a> ·
+  🔄&nbsp;<a href="#-upgrading-from-dev-master">Upgrading</a>
+</p>
+
+<br><br>
+
+## 📦 Installation
 
 ```bash
 composer require ijeffro/laravel-airports
@@ -24,7 +39,9 @@ composer require ijeffro/laravel-airports
 
 Laravel discovers the service provider and the `Airports` facade automatically.
 
-## Usage
+<br><br>
+
+## 🚀 Usage
 
 ```php
 use FLAIRUK\Airports\Facades\Airports;
@@ -62,7 +79,9 @@ $request->validate([
 
 The facade resolves a singleton `FLAIRUK\Airports\Airports`, which you can type-hint instead.
 
-## Database table (optional)
+<br><br>
+
+## 💾 Database table (optional)
 
 ```bash
 php artisan airports:install         # publish config + migration, then migrate and seed
@@ -87,11 +106,13 @@ Airport::inCountry('GB')->orderBy('name')->get();
 
 The table name and connection come from `AIRPORTS_TABLE` and `AIRPORTS_DB_CONNECTION`, or from the published config.
 
-## Upgrading from 1.x / dev-master
+<br><br>
+
+## 🔄 Upgrading from dev-master
 
 Version 2 is a rewrite. Breaking changes:
 
-| 1.x | 2.x |
+| dev-master | 1.0 |
 | --- | --- |
 | `ijeffro\Airports\…` namespace | `FLAIRUK\Airports\…` |
 | Facade `ijeffro\Airports\AirportsFacade` | `FLAIRUK\Airports\Facades\Airports` (auto-discovered) |
@@ -103,12 +124,16 @@ Version 2 is a rewrite. Breaking changes:
 
 Row `id`s and columns (`code`, `name`, `country_code`) are unchanged, so existing tables and foreign keys stay valid.
 
-## Testing
+<br><br>
+
+## 🧪 Testing
 
 ```bash
 composer test
 ```
 
-## License
+<br><br>
+
+## 📄 License
 
 MIT. See [LICENSE](LICENSE).
