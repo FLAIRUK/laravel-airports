@@ -8,7 +8,8 @@
 <h2 align="center">
   <a href="https://www.php.net/" target="_blank"><img src="https://img.shields.io/badge/PHP-8.2%2B-777BB4?style=flat&logo=php&logoColor=white" alt="PHP 8.2+"></a>&nbsp;
   <a href="https://laravel.com/docs/" target="_blank"><img src="https://img.shields.io/badge/Laravel-12%20%7C%2013-FF2D20?style=flat&logo=laravel&logoColor=white" alt="Laravel 12 or 13"></a>&nbsp;
-  <a href="https://github.com/FLAIRUK/laravel-airports/actions/workflows/tests.yml" target="_blank"><img src="https://img.shields.io/github/actions/workflow/status/FLAIRUK/laravel-airports/tests.yml?branch=master&style=flat&logo=githubactions&logoColor=white&label=Tests" alt="Tests"></a>&nbsp;
+  <a href="https://github.com/FLAIRUK/laravel-airports/actions/workflows/tests.yml" target="_blank"><img src="https://img.shields.io/badge/Lint-%E2%9C%93-2EA043?style=flat&logo=githubactions&logoColor=white" alt="Lint"></a>&nbsp;
+  <a href="https://github.com/FLAIRUK/laravel-airports/actions/workflows/tests.yml" target="_blank"><img src="https://img.shields.io/badge/Tests-%E2%9C%93-2EA043?style=flat&logo=githubactions&logoColor=white" alt="Tests"></a>&nbsp;
   <a href="https://packagist.org/packages/ijeffro/laravel-airports" target="_blank"><img src="https://img.shields.io/packagist/dt/ijeffro/laravel-airports?style=flat&logo=packagist&logoColor=white&label=Downloads&color=F28D1A" alt="Downloads on Packagist"></a>&nbsp;
   <a href="https://github.com/FLAIRUK/laravel-airports/blob/master/LICENSE" target="_blank"><img src="https://img.shields.io/github/license/FLAIRUK/laravel-airports?style=flat&label=License&color=3DA639" alt="MIT licence"></a>&nbsp;
   <a href="https://www.iata.org/en/publications/directories/code-search/" target="_blank"><img src="https://img.shields.io/badge/Data-IATA-EA580C?style=flat" alt="IATA"></a>&nbsp;
@@ -110,7 +111,7 @@ The table name and connection come from `AIRPORTS_TABLE` and `AIRPORTS_DB_CONNEC
 
 ## 🔄 Upgrading from dev-master
 
-Version 2 is a rewrite. Breaking changes:
+Version 1.0 is a rewrite. Breaking changes:
 
 | dev-master | 1.0 |
 | --- | --- |
@@ -118,7 +119,7 @@ Version 2 is a rewrite. Breaking changes:
 | Facade `ijeffro\Airports\AirportsFacade` | `FLAIRUK\Airports\Facades\Airports` (auto-discovered) |
 | `Airports::getList($sort)` (array) | `Airports::all()->sortBy($sort)` (Collection of `Airport`) |
 | `Airports::getOne($id)` | `Airports::findById($id)` or `Airports::find($code)` |
-| `Airports::getListForSelect()` | `Airports::options()` |
+| `Airports::getListForSelect()` (keyed by id) | `Airports::options('id')` |
 | `php artisan airports:migration` | `php artisan airports:install` / `airports:seed` |
 | Config key `airports.table_name` | `airports.table` |
 
