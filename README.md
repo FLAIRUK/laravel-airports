@@ -1,4 +1,9 @@
-# Laravel Airports
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="art/logo-dark.svg">
+    <img src="art/logo-light.svg" alt="Laravel Airports" width="420">
+  </picture>
+</p>
 
 [![Tests](https://github.com/FLAIRUK/laravel-airports/actions/workflows/tests.yml/badge.svg)](https://github.com/FLAIRUK/laravel-airports/actions/workflows/tests.yml)
 [![Latest Stable Version](https://poser.pugx.org/ijeffro/laravel-airports/v/stable)](https://packagist.org/packages/ijeffro/laravel-airports)
