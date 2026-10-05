@@ -38,6 +38,8 @@
 composer require flairuk/laravel-airports
 ```
 
+Requires PHP 8.2 or later with Laravel 12, or PHP 8.3 or later with Laravel 13.
+
 Laravel discovers the service provider and the `Airports` facade automatically.
 
 <br><br>
@@ -76,6 +78,8 @@ $request->validate([
 ]);
 ```
 
+`AirportCode` ignores case but `different` does not, so `LHR` and `lhr` would pass as different airports. Uppercase both fields first (for example in a form request's `prepareForValidation()`) when that matters.
+
 ### Dependency injection
 
 The facade resolves a singleton `FLAIRUK\Airports\Airports`, which you can type-hint instead.
@@ -85,7 +89,8 @@ The facade resolves a singleton `FLAIRUK\Airports\Airports`, which you can type-
 ## 💾 Database table (optional)
 
 ```bash
-php artisan airports:install         # publish config + migration, then migrate and seed
+php artisan airports:install             # publish config + migration, then ask to migrate and seed
+php artisan airports:install --migrate   # migrate and seed without asking
 php artisan airports:seed            # insert / update (safe to re-run)
 php artisan airports:seed --prune    # also delete rows no longer in the dataset
 ```
@@ -118,7 +123,7 @@ Version 1.0 is a rewrite. Breaking changes:
 | Package `ijeffro/laravel-airports` | `flairuk/laravel-airports` |
 | `ijeffro\Airports\…` namespace | `FLAIRUK\Airports\…` |
 | Facade `ijeffro\Airports\AirportsFacade` | `FLAIRUK\Airports\Facades\Airports` (auto-discovered) |
-| `Airports::getList($sort)` (array) | `Airports::all()->sortBy($sort)` (Collection of `Airport`) |
+| `Airports::getList($sort)` (array) | `Airports::all()->sortBy($property, SORT_NATURAL \| SORT_FLAG_CASE)` (Collection of `Airport`; properties are camelCase, e.g. `countryCode`) |
 | `Airports::getOne($id)` | `Airports::findById($id)` or `Airports::find($code)` |
 | `Airports::getListForSelect()` (keyed by id) | `Airports::options('id')` |
 | `php artisan airports:migration` | `php artisan airports:install` / `airports:seed` |
