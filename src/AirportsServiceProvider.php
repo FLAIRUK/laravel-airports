@@ -28,6 +28,11 @@ class AirportsServiceProvider extends ServiceProvider
             __DIR__.'/../database/migrations' => database_path('migrations'),
         ], 'airports-migrations');
 
+        // Adds the 1.1 columns to a table created by the 1.0 migration.
+        $this->publishesMigrations([
+            __DIR__.'/../database/migrations/add_location_columns_to_airports_table.php' => database_path('migrations/add_location_columns_to_airports_table.php'),
+        ], 'airports-upgrade-migration');
+
         $this->commands([
             Console\InstallCommand::class,
             Console\SeedCommand::class,

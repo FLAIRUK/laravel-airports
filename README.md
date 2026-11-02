@@ -20,6 +20,7 @@
 
 - **No database required.** Look airports up through a facade backed by an in-memory dataset.
 - **Typed results.** Every lookup returns readonly `Airport` objects in Laravel collections keyed by code.
+- **Locations.** City, coordinates, type, scheduled service and ICAO code for over 8,400 of them, from [OurAirports](https://ourairports.com/data/), and a `nearest()` lookup.
 - **Validation rule.** `new AirportCode` accepts known codes only.
 - **Optional table.** Publish a migration and seed an `airports` table when other tables need to reference airports.
 
@@ -27,7 +28,8 @@
   📦&nbsp;<a href="#-installation">Installation</a> ·
   🚀&nbsp;<a href="#-usage">Usage</a> ·
   💾&nbsp;<a href="#-database-table-optional">Database table</a> ·
-  🔄&nbsp;<a href="#-upgrading-from-dev-master">Upgrading</a>
+  🗂️&nbsp;<a href="#%EF%B8%8F-rebuilding-the-dataset">Dataset</a> ·
+  🔄&nbsp;<a href="#-upgrading">Upgrading</a>
 </p>
 
 <br><br>
@@ -49,16 +51,29 @@ Laravel discovers the service provider and the `Airports` facade automatically.
 ```php
 use FLAIRUK\Airports\Facades\Airports;
 
-Airports::find('lhr');           // Airport { id: 4329, code: "LHR", name: "Heathrow", countryCode: "GB" }
+Airports::find('lhr');           // Airport { id: 4329, code: "LHR", name: "Heathrow", countryCode: "GB", city: "London", … }
 Airports::findOrFail('LHR');     // throws ItemNotFoundException for unknown codes
 Airports::exists('JFK');         // true
 Airports::findById(4329);
 
 Airports::all();                 // Collection<string, Airport> keyed by code
 Airports::inCountry('GB');       // airports in the UK
-Airports::search('heathrow');    // matches on name or exact code
+Airports::search('heathrow');    // matches on name, city or exact code
 Airports::codes();               // ['AAA', 'AAB', ...]
 ```
+
+### Nearest airports
+
+```php
+Airports::nearest(51.754, -1.254);                                 // the 5 nearest to Oxford, nearest first
+Airports::nearest(51.754, -1.254, limit: 8, scheduledOnly: true);  // LTN, LHR, BHX, … with passenger flights
+Airports::nearest(51.754, -1.254, withinKm: 50);                   // only those within 50 km
+Airports::nearest(51.754, -1.254, types: ['large', 'medium']);
+
+Airports::find('LHR')->distanceTo(51.754, -1.254);                 // 63.2 (km, great circle)
+```
+
+`nearest()` returns a collection keyed by code and skips airports without coordinates and closed ones. Each `Airport` carries `city`, `latitude`, `longitude`, `type` (`large`, `medium`, `small`, `heliport`, `seaplane`, `closed` or `null`), `scheduled` and `icao`; any of them is `null` (or `false`) when OurAirports has no match for the code.
 
 ### Select options
 
@@ -107,14 +122,42 @@ Query the table through the bundled Eloquent model:
 use FLAIRUK\Airports\Models\Airport;
 
 Airport::code('LHR')->first();
-Airport::inCountry('GB')->orderBy('name')->get();
+Airport::inCountry('GB')->scheduled()->orderBy('name')->get();
 ```
 
 The table name and connection come from `AIRPORTS_TABLE` and `AIRPORTS_DB_CONNECTION`, or from the published config.
 
 <br><br>
 
-## 🔄 Upgrading from dev-master
+## 🗂️ Rebuilding the dataset
+
+`data/airports.php` keeps the original IATA rows (`id`, `code`, `name`, `country_code`) and adds the location fields from [OurAirports](https://ourairports.com/data/) (public domain), matched on IATA code and country. To refresh them from a newer export:
+
+```bash
+curl -sSfLo /tmp/airports.csv https://davidmegginson.github.io/ourairports-data/airports.csv
+php bin/build-dataset.php /tmp/airports.csv
+composer test
+```
+
+The script only reads the original four fields, so re-running it is safe; it prints how many rows matched.
+
+<br><br>
+
+## 🔄 Upgrading
+
+### From 1.0 to 1.1
+
+1.1 is additive. If you seeded the table, add the new columns and re-seed:
+
+```bash
+php artisan airports:install   # publishes the upgrade migration next to your 1.0 one
+php artisan migrate
+php artisan airports:seed
+```
+
+Until you migrate, `airports:seed` keeps filling the 1.0 columns only.
+
+### From dev-master
 
 Version 1.0 is a rewrite. Breaking changes:
 

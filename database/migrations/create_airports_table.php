@@ -18,6 +18,12 @@ return new class extends Migration
             $table->char('code', 3)->unique();
             $table->string('name');
             $table->char('country_code', 2)->index();
+            $table->string('city')->nullable();
+            $table->decimal('latitude', 9, 6)->nullable();
+            $table->decimal('longitude', 9, 6)->nullable();
+            $table->string('type', 16)->nullable()->index();
+            $table->boolean('scheduled')->default(false)->index();
+            $table->char('icao', 4)->nullable();
         });
     }
 

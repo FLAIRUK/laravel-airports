@@ -5,6 +5,7 @@ namespace FLAIRUK\Airports\Tests;
 use FLAIRUK\Airports\Database\AirportsSeeder;
 use FLAIRUK\Airports\Facades\Airports;
 use FLAIRUK\Airports\Models\Airport;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use PHPUnit\Framework\Attributes\Test;
@@ -25,6 +26,50 @@ class DatabaseTest extends TestCase
         $this->assertSame(Airports::all()->count(), Airport::count());
         $this->assertSame('GB', Airport::code('lhr')->first()->country_code);
         $this->assertTrue(Airport::inCountry('GB')->exists());
+    }
+
+    #[Test]
+    public function the_seeder_fills_the_location_columns(): void
+    {
+        $this->artisan('airports:seed')->assertSuccessful();
+
+        $heathrow = Airport::code('LHR')->first();
+
+        $this->assertSame('London', $heathrow->city);
+        $this->assertEqualsWithDelta(51.470748, $heathrow->latitude, 0.000001);
+        $this->assertEqualsWithDelta(-0.459909, $heathrow->longitude, 0.000001);
+        $this->assertSame('large', $heathrow->type);
+        $this->assertTrue($heathrow->scheduled);
+        $this->assertSame('EGLL', $heathrow->icao);
+        $this->assertNull(Airport::code(Airports::all()->whereNull('latitude')->first()->code)->first()->latitude);
+
+        $this->assertSame(Airports::all()->where('scheduled', true)->count(), Airport::scheduled()->count());
+    }
+
+    #[Test]
+    public function the_upgrade_migration_adds_the_location_columns_to_a_1_0_table(): void
+    {
+        $table = config('airports.table');
+        Schema::drop($table);
+        Schema::create($table, function (Blueprint $table) {
+            $table->unsignedInteger('id')->primary();
+            $table->char('code', 3)->unique();
+            $table->string('name');
+            $table->char('country_code', 2)->index();
+        });
+
+        // A 1.0 table still seeds, with the 1.0 columns.
+        $this->artisan('airports:seed')->assertSuccessful();
+        $this->assertSame(Airports::all()->count(), Airport::count());
+
+        $upgrade = require __DIR__.'/../database/migrations/add_location_columns_to_airports_table.php';
+        $upgrade->up();
+        $upgrade->up();
+
+        $this->assertTrue(Schema::hasColumns($table, ['city', 'latitude', 'longitude', 'type', 'scheduled', 'icao']));
+
+        $this->artisan('airports:seed')->assertSuccessful();
+        $this->assertSame('EGLL', Airport::code('LHR')->first()->icao);
     }
 
     #[Test]
@@ -71,8 +116,27 @@ class DatabaseTest extends TestCase
 
         $this->assertFileExists(config_path('airports.php'));
         $this->assertCount(1, File::glob($migrations.'/*_create_airports_table.php'));
+        $this->assertCount(0, File::glob($migrations.'/*_add_location_columns_to_airports_table.php'));
 
         File::delete(File::glob($migrations.'/*_create_airports_table.php'));
+        File::delete(config_path('airports.php'));
+    }
+
+    #[Test]
+    public function install_publishes_the_upgrade_migration_over_a_1_0_install(): void
+    {
+        $migrations = database_path('migrations');
+        File::ensureDirectoryExists($migrations);
+        File::put($migrations.'/2026_10_05_000000_create_airports_table.php', '<?php');
+        File::delete(File::glob($migrations.'/*_add_location_columns_to_airports_table.php'));
+
+        $this->artisan('airports:install')
+            ->expectsConfirmation('Run the migration and seed the airports table now?', 'no')
+            ->assertSuccessful();
+
+        $this->assertCount(1, File::glob($migrations.'/*_add_location_columns_to_airports_table.php'));
+
+        File::delete(File::glob($migrations.'/*_airports_table.php'));
         File::delete(config_path('airports.php'));
     }
 }

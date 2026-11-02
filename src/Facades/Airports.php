@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static bool exists(string $code)
  * @method static \Illuminate\Support\Collection<string, \FLAIRUK\Airports\Data\Airport> inCountry(string $countryCode)
  * @method static \Illuminate\Support\Collection<string, \FLAIRUK\Airports\Data\Airport> search(string $term)
+ * @method static \Illuminate\Support\Collection<string, \FLAIRUK\Airports\Data\Airport> nearest(float $latitude, float $longitude, int $limit = 5, ?float $withinKm = null, bool $scheduledOnly = false, ?array $types = null)
  * @method static \Illuminate\Support\Collection<int|string, string> options(string $key = 'code', string $label = 'name')
  * @method static list<string> codes()
  *

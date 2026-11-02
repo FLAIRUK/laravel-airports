@@ -18,7 +18,9 @@ class InstallCommand extends Command
     {
         $this->call('vendor:publish', ['--tag' => 'airports-config']);
 
-        $this->publishMigration($files);
+        if (! $this->publishMigration($files, 'create_airports_table')) {
+            $this->publishMigration($files, 'add_location_columns_to_airports_table');
+        }
 
         if ($this->option('migrate') || $this->confirm('Run the migration and seed the airports table now?', true)) {
             $this->call('migrate');
@@ -30,22 +32,30 @@ class InstallCommand extends Command
         return self::SUCCESS;
     }
 
-    protected function publishMigration(Filesystem $files): void
+    /**
+     * Copy a migration unless one with the same name is already published. Returns whether it copied.
+     *
+     * The upgrade migration is only needed by tables created from the 1.0 migration,
+     * so it is published only when the create migration is already there.
+     */
+    protected function publishMigration(Filesystem $files, string $name): bool
     {
         $directory = $this->laravel->databasePath('migrations');
 
-        if ($files->glob($directory.'/*_create_airports_table.php')) {
-            $this->components->info('Migration already published.');
+        if ($files->glob($directory.'/*_'.$name.'.php')) {
+            $this->components->info("Migration [{$name}] already published.");
 
-            return;
+            return false;
         }
 
         $files->ensureDirectoryExists($directory);
         $files->copy(
-            __DIR__.'/../../database/migrations/create_airports_table.php',
-            $target = $directory.'/'.date('Y_m_d_His').'_create_airports_table.php',
+            __DIR__.'/../../database/migrations/'.$name.'.php',
+            $target = $directory.'/'.date('Y_m_d_His').'_'.$name.'.php',
         );
 
         $this->components->info('Published migration ['.basename($target).'].');
+
+        return true;
     }
 }
